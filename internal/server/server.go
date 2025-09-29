@@ -35,6 +35,6 @@ func (s *Server) Start() error {
 }
 
 // Stop the server gracefully with the given context
-func (s *Server) Stop(ctx context.Context) error {
+func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
