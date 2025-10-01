@@ -2,6 +2,7 @@ package server
 
 import (
 	"augustinlassus/gomailgateway/internal/config"
+	"augustinlassus/gomailgateway/internal/handlers"
 	"context"
 	"fmt"
 	"net/http"
@@ -20,7 +21,7 @@ func New(cfg *config.Config, storeClient *firestore.Client) (*Server, error) {
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 
-	// here register routes, probably something like handlers.RegisterRoutes(router, storeClient)
+	handlers.RegisterRoutes(router, storeClient)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),

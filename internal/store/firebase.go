@@ -16,7 +16,7 @@ func NewClient(c context.Context, cfg *config.Config) (*firestore.Client, error)
 		return nil, err
 	}
 
-	client, err := firestore.NewClient(c, cfg.AppID, option.WithCredentialsJSON(cfgJson))
+	client, err := firestore.NewClient(c, "untitledmailapp", option.WithCredentialsJSON(cfgJson))
 	if err != nil {
 		return nil, err
 	}

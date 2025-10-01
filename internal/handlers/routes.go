@@ -1,0 +1,44 @@
+package handlers
+
+import (
+	"net/http"
+
+	"cloud.google.com/go/firestore"
+	"github.com/gin-gonic/gin"
+)
+
+func RegisterRoutes(r *gin.Engine, fs *firestore.Client) {
+	r.GET("healthz", HealthCheckHandler)
+	r.GET("readyz", ReadyCheckHandler(fs))
+
+}
+
+// Returns ok for liveness checks
+func HealthCheckHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+	})
+}
+
+// ReadyCheckHandler
+func ReadyCheckHandler(fs *firestore.Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// only checking firestore readiness for now...
+		// cuz there aint nin else
+		iter := fs.Collections(c)
+		_, err := iter.Next()
+		if err != nil && err.Error() != "no more items in iterator" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"status": "unhealty",
+				"error":  err.Error(),
+			})
+
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ready",
+		})
+
+	}
+}
