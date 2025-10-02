@@ -11,6 +11,29 @@ func RegisterRoutes(r *gin.Engine, fs *firestore.Client) {
 	r.GET("healthz", HealthCheckHandler)
 	r.GET("readyz", ReadyCheckHandler(fs))
 
+	// TODO: implement handlers
+	auth := r.Group("/auth")
+	{
+		ms := auth.Group("/ms")
+		{
+			ms.GET("/login")
+			ms.GET("/callback")
+		}
+	}
+
+	// TODO: perhaps add an api versioning mechanism
+	api := r.Group("/api")
+	{
+		mail := api.Group("/mail")
+		{
+			ms := mail.Group("/ms")
+			{
+				// TODO: define routes
+				ms.GET("/")
+			}
+		}
+	}
+
 }
 
 // Returns ok for liveness checks
