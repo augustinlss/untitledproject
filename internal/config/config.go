@@ -14,6 +14,7 @@ type Config struct {
 	MSClientSecret string
 	MSRedirectURI  string
 	MSScopes       string
+	MSTenantID     string
 
 	Port string
 }
@@ -29,6 +30,7 @@ func Load() (*Config, error) {
 		MSClientSecret: os.Getenv("MS_APP_SECRET"),
 		MSRedirectURI:  os.Getenv("MS_REDIRECT_URI"),
 		MSScopes:       os.Getenv("MS_SCOPES"),
+		MSTenantID:     os.Getenv("MS_TENANT_ID"),
 
 		Port: os.Getenv("SERVER_PORT"),
 	}
@@ -49,6 +51,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.MSClientSecret == "" {
 		return nil, errors.New("missing required env: MS_APP_SECRET")
+	}
+	if cfg.MSTenantID == "" {
+		return nil, errors.New("missing required env: MS_TENANT_ID")
 	}
 
 	println("Configuration loaded successfully.")

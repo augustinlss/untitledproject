@@ -3,6 +3,7 @@ package server
 import (
 	"augustinlassus/gomailgateway/internal/config"
 	"augustinlassus/gomailgateway/internal/handlers"
+	"augustinlassus/gomailgateway/internal/msgraph"
 	"context"
 	"fmt"
 	"net/http"
@@ -16,12 +17,12 @@ type Server struct {
 }
 
 // Create a new server instance with the given configuration and Firestore client
-func New(cfg *config.Config, storeClient *firestore.Client) (*Server, error) {
+func New(cfg *config.Config, storeClient *firestore.Client, msClient *msgraph.Client) (*Server, error) {
 	gin.SetMode(gin.DebugMode)
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 
-	handlers.RegisterRoutes(router, storeClient)
+	handlers.RegisterRoutes(router, storeClient, msClient)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),

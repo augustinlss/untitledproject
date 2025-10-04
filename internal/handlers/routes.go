@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"augustinlassus/gomailgateway/internal/msgraph"
 	"net/http"
 
 	"cloud.google.com/go/firestore"
@@ -8,17 +9,17 @@ import (
 )
 
 // Registers routes to main api engine.
-func RegisterRoutes(r *gin.Engine, fs *firestore.Client) {
+func RegisterRoutes(r *gin.Engine, fsClient *firestore.Client, msClient *msgraph.Client) {
 	r.GET("healthz", HealthCheckHandler)
-	r.GET("readyz", ReadyCheckHandler(fs))
+	r.GET("readyz", ReadyCheckHandler(fsClient))
 
 	// TODO: implement handlers
 	auth := r.Group("/auth")
 	{
-		ms := auth.Group("/ms")
+		ms := auth.Group("/microsoft")
 		{
-			ms.GET("/login")
-			ms.GET("/callback")
+			ms.GET("/login", MSLoginHandler(msClient))
+			ms.GET("/callback", MSCallbackHandler(msClient, fsClient))
 		}
 	}
 
@@ -27,10 +28,12 @@ func RegisterRoutes(r *gin.Engine, fs *firestore.Client) {
 	{
 		mail := api.Group("/mail")
 		{
-			ms := mail.Group("/ms")
+			ms := mail.Group("/microsoft")
 			{
-				// TODO: define routes
-				ms.GET("/")
+				// Microsoft Graph mail routes
+				ms.GET("/messages", GetMessagesHandler(msClient))
+				ms.POST("/send", SendMailHandler(msClient))
+				ms.GET("/user", GetUserInfoHandler(msClient))
 			}
 		}
 	}
@@ -45,11 +48,11 @@ func HealthCheckHandler(c *gin.Context) {
 }
 
 // ReadyCheckHandler
-func ReadyCheckHandler(fs *firestore.Client) gin.HandlerFunc {
+func ReadyCheckHandler(fsClient *firestore.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// only checking firestore readiness for now...
 		// cuz there aint nin else
-		iter := fs.Collections(c)
+		iter := fsClient.Collections(c)
 		_, err := iter.Next()
 		if err != nil && err.Error() != "no more items in iterator" {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
