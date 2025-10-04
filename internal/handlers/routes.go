@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Registers routes to main api engine.
 func RegisterRoutes(r *gin.Engine, fs *firestore.Client) {
 	r.GET("healthz", HealthCheckHandler)
 	r.GET("readyz", ReadyCheckHandler(fs))
