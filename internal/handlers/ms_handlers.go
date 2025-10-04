@@ -3,17 +3,29 @@ package handlers
 import (
 	"augustinlassus/gomailgateway/internal/msgraph"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
+// MSLoginHandler redirects the user to the Microsoft login page for OAuth2.
 func MSLoginHandler(c *msgraph.Client) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		authURL, err := buildMicrosoftAuthURL(c)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		ctx.Redirect(http.StatusFound, authURL)
 	}
 }
 
+// buildMicrosoftAuthURL constructs the OAuth2 authorization URL for Microsoft.
 func buildMicrosoftAuthURL(c *msgraph.Client) (string, error) {
 	u, err := url.Parse("https://login.micosoftonline.com/common/oauth2/v2.0/authorize")
 
