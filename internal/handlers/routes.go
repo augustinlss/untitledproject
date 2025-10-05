@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"augustinlassus/gomailgateway/internal/config"
 	"augustinlassus/gomailgateway/internal/msgraph"
 	"net/http"
 
@@ -9,7 +10,7 @@ import (
 )
 
 // Registers routes to main api engine.
-func RegisterRoutes(r *gin.Engine, fsClient *firestore.Client, msClient *msgraph.Client) {
+func RegisterRoutes(r *gin.Engine, fsClient *firestore.Client, msClient *msgraph.Client, cfg *config.Config) {
 	r.GET("healthz", HealthCheckHandler)
 	r.GET("readyz", ReadyCheckHandler(fsClient))
 
@@ -18,25 +19,25 @@ func RegisterRoutes(r *gin.Engine, fsClient *firestore.Client, msClient *msgraph
 	{
 		ms := auth.Group("/microsoft")
 		{
-			ms.GET("/login", MSLoginHandler(msClient))
-			ms.GET("/callback", MSCallbackHandler(msClient, fsClient))
+			ms.GET("/login", MSLoginHandler(cfg))
+			ms.GET("/callback", MSCallbackHandler(cfg, fsClient))
 		}
 	}
 
 	// TODO: perhaps add an api versioning mechanism
-	api := r.Group("/api")
-	{
-		mail := api.Group("/mail")
-		{
-			ms := mail.Group("/microsoft")
-			{
-				// Microsoft Graph mail routes
-				ms.GET("/messages", GetMessagesHandler(msClient))
-				ms.POST("/send", SendMailHandler(msClient))
-				ms.GET("/user", GetUserInfoHandler(msClient))
-			}
-		}
-	}
+	// api := r.Group("/api")
+	// {
+	// 	mail := api.Group("/mail")
+	// 	{
+	// 		ms := mail.Group("/microsoft")
+	// 		{
+	// 			// Microsoft Graph mail routes
+	// 			ms.GET("/messages", GetMessagesHandler(msClient))
+	// 			ms.POST("/send", SendMailHandler(msClient))
+	// 			ms.GET("/user", GetUserInfoHandler(msClient))
+	// 		}
+	// 	}
+	// }
 
 }
 

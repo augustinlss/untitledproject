@@ -27,7 +27,7 @@ func Load() (*Config, error) {
 		FirebaseConfigJSON: os.Getenv("__firebase_config"),
 
 		MSClientID:     os.Getenv("MS_APP_ID"),
-		MSClientSecret: os.Getenv("MS_APP_SECRET"),
+		MSClientSecret: os.Getenv("MS_APP_SECRET_VALUE"),
 		MSRedirectURI:  os.Getenv("MS_REDIRECT_URI"),
 		MSScopes:       os.Getenv("MS_SCOPES"),
 		MSTenantID:     os.Getenv("MS_TENANT_ID"),

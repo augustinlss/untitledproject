@@ -22,7 +22,7 @@ func New(cfg *config.Config, storeClient *firestore.Client, msClient *msgraph.Cl
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 
-	handlers.RegisterRoutes(router, storeClient, msClient)
+	handlers.RegisterRoutes(router, storeClient, msClient, cfg)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),
