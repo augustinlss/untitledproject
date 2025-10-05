@@ -2,6 +2,7 @@ package main
 
 import (
 	"augustinlassus/gomailgateway/internal/config"
+	"augustinlassus/gomailgateway/internal/msgraph"
 	"augustinlassus/gomailgateway/internal/server"
 	"augustinlassus/gomailgateway/internal/store"
 	"context"
@@ -31,7 +32,9 @@ func main() {
 
 	defer storeClient.Close()
 
-	srv, err := server.New(cfg, storeClient)
+	msClient, err := msgraph.NewClient(cfg)
+
+	srv, err := server.New(cfg, storeClient, msClient)
 
 	if err != nil {
 		log.Fatal("Error initializing server: ", err)
