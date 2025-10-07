@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"augustinlassus/gomailgateway/internal/auth"
 	"augustinlassus/gomailgateway/internal/config"
 	"augustinlassus/gomailgateway/internal/msgraph"
 	"context"
@@ -94,13 +95,27 @@ func MSCallbackHandler(cfg *config.Config, fs *firestore.Client) gin.HandlerFunc
 			displayName = *user.GetDisplayName()
 		}
 
+		serverRefreshToken, err := auth.GenerateRefreshToken(cfg, uid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate refresh token"})
+			return
+		}
+
+		sessionToken, err := auth.GenerateSessionToken(cfg, uid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate session token"})
+			return
+		}
+
 		// Store user & token in Firestore
 		userData := map[string]any{
-			"displayName": displayName,
-			"email":       mail,
-			"id":          uid,
-			"loginTime":   time.Now(),
-			"token":       token,
+			"displayName":  displayName,
+			"email":        mail,
+			"id":           uid,
+			"loginTime":    time.Now(),
+			"ms_token":     token,
+			"provider":     "microsoft",
+			"refreshToken": serverRefreshToken,
 		}
 		_, err = fs.Collection("users").Doc(uid).Set(context.Background(), userData)
 		if err != nil {
@@ -108,9 +123,12 @@ func MSCallbackHandler(cfg *config.Config, fs *firestore.Client) gin.HandlerFunc
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Login successful",
-			"user":    userData,
-		})
+		// Set cookies
+		// Secure: false for localhost (http), true for production (https)
+		c.SetCookie("session_token", sessionToken, 3600*24*2, "/", "", false, true)
+
+		redirectURL := "http://localhost:3000/auth/success"
+
+		c.Redirect(http.StatusFound, redirectURL)
 	}
 }

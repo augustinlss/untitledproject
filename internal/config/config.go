@@ -16,6 +16,8 @@ type Config struct {
 	MSScopes       string
 	MSTenantID     string
 
+	JWTSecret string
+
 	Port string
 }
 
@@ -31,6 +33,8 @@ func Load() (*Config, error) {
 		MSRedirectURI:  os.Getenv("MS_REDIRECT_URI"),
 		MSScopes:       os.Getenv("MS_SCOPES"),
 		MSTenantID:     os.Getenv("MS_TENANT_ID"),
+
+		JWTSecret: os.Getenv("JWT_SECRET"),
 
 		Port: os.Getenv("SERVER_PORT"),
 	}
